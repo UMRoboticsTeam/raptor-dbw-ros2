@@ -30,6 +30,7 @@
 #define CAN_DBC_PARSER__DBCSIGNAL_HPP_
 
 #include <string>
+#include <cstdint>
 
 namespace NewEagle
 {
