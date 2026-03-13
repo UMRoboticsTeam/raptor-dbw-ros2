@@ -131,6 +131,55 @@ Frame DbcMessage::GetFrame()
   return frame;
 }
 
+void DbcMessage::SetRawData(const uint8_t data_in[8])
+{
+  // uint8_t * ptr = static_cast<uint8_t *>(data->_M_elems);
+  uint8_t data[8];
+  memcpy(data, data_in, 8);
+
+  if (!AnyMultiplexedSignals()) {
+    for (std::map<std::string, NewEagle::DbcSignal>::iterator it = _signals.begin();
+      it != _signals.end(); it++)
+    {
+      double res = Unpack(data, it->second);
+      it->second.SetResult(res);
+    }
+  } else {
+    // Start by looping through an only setting signals that are not multiplexed
+    // While we're at it, we can pick out the mutliplexer switch.
+    // Perform a second loop to find the mulitplexed signal based on the multiplexer switch.
+
+    NewEagle::DbcSignal * muxSwitch = NULL;  // only one multiplexer switch per message is allowed
+
+    for (std::map<std::string, NewEagle::DbcSignal>::iterator it = _signals.begin();
+      it != _signals.end(); it++)
+    {
+      if (NewEagle::NONE == it->second.GetMultiplexerMode()) {
+        double res = Unpack(data, it->second);
+        it->second.SetResult(res);
+      }
+      if (NewEagle::MUX_SWITCH == it->second.GetMultiplexerMode()) {
+        muxSwitch = &it->second;
+        double res = Unpack(data, it->second);
+        it->second.SetResult(res);
+      }
+    }
+
+    for (std::map<std::string, NewEagle::DbcSignal>::iterator it = _signals.begin();
+      it != _signals.end(); it++)
+    {
+      if (NewEagle::MUX_SIGNAL == it->second.GetMultiplexerMode()) {
+        if ((muxSwitch != NULL) &&
+          (muxSwitch->GetResult() == it->second.GetMultiplexerSwitch()))
+        {
+          double res = Unpack(data, it->second);
+          it->second.SetResult(res);
+        }
+      }
+    }
+  }
+}
+
 void DbcMessage::SetFrame(const Frame::SharedPtr msg)
 {
   uint8_t * ptr = static_cast<uint8_t *>(msg->data._M_elems);
