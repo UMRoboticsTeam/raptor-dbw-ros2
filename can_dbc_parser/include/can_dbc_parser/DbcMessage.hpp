@@ -81,6 +81,7 @@ public:
   std::string GetName();
   Frame GetFrame();
   uint32_t GetSignalCount();
+  void SetRawData(const uint8_t data[8]);
   void SetFrame(const Frame::SharedPtr msg);
   void AddSignal(std::string signalName, NewEagle::DbcSignal signal);
   NewEagle::DbcSignal * GetSignal(std::string signalName);
