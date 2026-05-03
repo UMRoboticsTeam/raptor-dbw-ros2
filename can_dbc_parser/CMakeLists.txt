@@ -15,6 +15,17 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# Parse version number from the file
+file(READ "version" version_input)
+string(REGEX MATCH "([0-9]+)\.([0-9]+)\.([0-9]+)" _ ${version_input})
+
+# Fill version number into package.xml
+configure_file(
+        package.in.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/package.xml
+        @ONLY
+)
+
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
 find_package(can_msgs REQUIRED)
@@ -36,6 +47,16 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+# Setup files to satisfy rosdep
+# This is pretty hacky...
+# Package name format comes from "rosify_package_name" function in https://github.com/ros-infrastructure/bloom/blob/master/bloom/generators/rosdebian.py
+write_file("${CMAKE_CURRENT_BUILD_DIR}/rosdep/sources.list.d/99-${PROJECT_NAME}.list" "yaml file:///etc/ros/rosdep/${PROJECT_NAME}.yaml")
+write_file("${CMAKE_CURRENT_BUILD_DIR}/rosdep/${PROJECT_NAME}.yaml" "${PROJECT_NAME}:\n  ubuntu: [ros-$ENV{ROS_DISTRO}-${PROJECT_NAME}]")
+install(
+  DIRECTORY ${CMAKE_CURRENT_BUILD_DIR}/rosdep
+  DESTINATION /etc/ros/
+)
 
 ament_auto_package(INSTALL_TO_SHARE
   # launch
