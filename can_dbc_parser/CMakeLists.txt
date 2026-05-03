@@ -31,8 +31,7 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(can_msgs REQUIRED)
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(
-  can_dbc_parser SHARED
+ament_auto_add_library(${PROJECT_NAME} SHARED
   src/DbcMessage.cpp
   src/DbcSignal.cpp
   src/Dbc.cpp
@@ -40,7 +39,8 @@ ament_auto_add_library(
   src/DbcBuilder.cpp
 )
 
-target_compile_options(can_dbc_parser PRIVATE -Wno-unused-function)
+# Fat LTO objects seem to be breaking emulated builds with Github actions, see https://github.com/software-mansion/scarb/issues/2548
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-function -fno-fat-lto-objects)
 
 #run colcon test to run linters against code
 if(BUILD_TESTING)
