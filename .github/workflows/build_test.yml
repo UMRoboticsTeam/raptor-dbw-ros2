@@ -1,10 +1,13 @@
 name: ROS2 CI
 
-on:
-  pull_request:
-  push:
-    branches:
-      - 'foxy'
+# Disabling workflow because package.xml version insertion breaks it
+# Can be triggered manually if someone really likes
+# I don't see this test as particularly useful anyways
+on: workflow_dispatch
+#  pull_request:
+#  push:
+#    branches:
+#      - 'foxy'
 
 jobs:
   test_environment:

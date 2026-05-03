@@ -19,8 +19,6 @@ endif()
 file(READ "version" version_input)
 string(REGEX MATCH "([0-9]+)\.([0-9]+)\.([0-9]+)" _ ${version_input})
 
-message("V = ${version_input}")
-
 # Fill version number into package.xml
 configure_file(
         package.in.xml
