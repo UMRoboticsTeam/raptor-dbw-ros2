@@ -15,6 +15,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# Parse version number from the file
+file(READ "version" version_input)
+string(REGEX MATCH "([0-9]+)\.([0-9]+)\.([0-9]+)" _ ${version_input})
+
+message("V = ${version_input}")
+
+# Fill version number into package.xml
+configure_file(
+        package.in.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/package.xml
+        @ONLY
+)
+
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
 find_package(can_msgs REQUIRED)
