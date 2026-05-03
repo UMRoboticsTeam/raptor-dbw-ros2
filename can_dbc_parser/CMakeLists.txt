@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(can_dbc_parser)
 
+# LTO objects seem to be breaking emulated builds with Github actions, I think this is related https://github.com/software-mansion/scarb/issues/2548
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF CACHE BOOL "Disable LTO" FORCE)
+
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
@@ -39,8 +42,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/DbcBuilder.cpp
 )
 
-# Fat LTO objects seem to be breaking emulated builds with Github actions, see https://github.com/software-mansion/scarb/issues/2548
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-function -fno-fat-lto-objects)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-function)
 
 #run colcon test to run linters against code
 if(BUILD_TESTING)
