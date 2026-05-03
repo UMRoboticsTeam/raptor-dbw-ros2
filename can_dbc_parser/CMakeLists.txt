@@ -50,6 +50,16 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Setup files to satisfy rosdep
+# This is pretty hacky...
+# Package name format comes from "rosify_package_name" function in https://github.com/ros-infrastructure/bloom/blob/master/bloom/generators/rosdebian.py
+write_file("${CMAKE_CURRENT_BUILD_DIR}/rosdep/sources.list.d/99-${PROJECT_NAME}.list" "yaml file:///etc/ros/rosdep/${PROJECT_NAME}.yaml")
+write_file("${CMAKE_CURRENT_BUILD_DIR}/rosdep/${PROJECT_NAME}.yaml" "${PROJECT_NAME}:\n  ubuntu: [ros-$ENV{ROS_DISTRO}-${PROJECT_NAME}]")
+install(
+  DIRECTORY ${CMAKE_CURRENT_BUILD_DIR}/rosdep
+  DESTINATION /etc/ros/
+)
+
 ament_auto_package(INSTALL_TO_SHARE
   # launch
 )
